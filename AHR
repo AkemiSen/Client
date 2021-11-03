@@ -1,0 +1,101 @@
+repeat
+    wait()
+until game:GetService("Players").LocalPlayer and game:GetService("Players").LocalPlayer.Character and game:IsLoaded()
+
+-- Variables --
+local Client = game:GetService("Players").LocalPlayer
+local Character = Client.Character or Client.CharacterAdded:Wait()
+local Start = game:GetService("TeleportService")
+local Vu = game:GetService("VirtualUser")
+local Instance = {
+    3552157537, -- Heaven --
+    3618359401 -- Ranked --
+}
+
+-- Script --
+if game:GetService("Players").LocalPlayer.Name:match(Main) or game:GetService("Players").LocalPlayer.Name:match(Alt) then
+    local function AntiAfk()
+        Client.Idled:connect(
+            function()
+                wait(.2)
+                Vu:Button2Down(Vector2.new(0, 0), game:GetService("Workspace").CurrentCamera.CFrame)
+                wait(.2)
+                Vu:Button2Up(Vector2.new(0, 0), game:GetService("Workspace").CurrentCamera.CFrame)
+            end
+        )
+    end
+    local function ErrorFix()
+        game:GetService("RunService").Stepped:connect(
+            function()
+                getgenv().rejoin =
+                    game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(
+                    function(Child)
+                        if
+                            Child.Name == "ErrorPrompt" and Child:FindFirstChild("MessageArea") and
+                                Child.MessageArea:FindFirstChild "ErrorFrame"
+                         then
+                            Start:Teleport(Instance[1])
+                            wait(3)
+                            Start:TeleportToPlaceInstance(Instance[1], game.JobId)
+                        end
+                    end
+                )
+            end
+        )
+    end
+    local function RankService()
+        repeat
+            wait()
+        until #game:GetService("Players"):GetPlayers() > 1
+
+        if Client.Name:match(Alt) then
+            if game.Players:FindFirstChild(Main) then
+                wait(5)
+                Start:Teleport(Instance[1])
+            else
+                for Finding, Player in pairs(game:GetService("Players"):GetPlayers()) do
+                    if Player.Name ~= Client.Name then
+                        setclipboard(Player.Name)
+                        wait(.5)
+                        Start:Teleport(Instance[1])
+                    end
+                end
+            end
+        end
+
+        if game.Players:FindFirstChild(Alt) then
+            repeat
+                wait()
+            until #game:GetService("Players"):GetPlayers() < 2
+            wait(2)
+            Start:Teleport(Instance[1])
+        else
+            for Finding, Player in pairs(game:GetService("Players"):GetPlayers()) do
+                if Player.Name ~= Client.Name then
+                    setclipboard(Player.Name)
+                    wait(.5)
+                    Start:Teleport(Instance[1])
+                end
+            end
+        end
+    end
+
+    local function InitRankService()
+        if game.PlaceId == Instance[1] and Ranking then
+            AntiAfk()
+            ErrorFix()
+            wait(2)
+            Start:Teleport(Instance[2])
+            wait(Rejoin)
+            Start:Teleport(Instance[1])
+        elseif game.PlaceId == Instance[2] and Ranking then
+            AntiAfk()
+            ErrorFix()
+            RankService()
+            wait(Rejoin)
+            Start:Teleport(Instance[1])
+        end
+    end
+
+    game:GetService("ContentProvider"):PreloadAsync({InitRankService()})
+end
